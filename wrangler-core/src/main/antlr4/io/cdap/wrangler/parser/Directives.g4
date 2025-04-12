@@ -64,6 +64,8 @@ directive
     | stringList
     | numberRanges
     | properties
+    | BYTESIZE
+    | TIMEDURATION
   )*?
   ;
 
@@ -256,6 +258,20 @@ Bool
 Number
  : Int ('.' Digit*)?
  ;
+
+
+BYTE_SIZE : [0-9]+ ('.' [0-9]+)? ('B' | 'KB' | 'MB' | 'GB' | 'TB' | 'b' | 'kb' | 'mb' | 'gb' | 'tb');
+
+TIME_DURATION : [0-9]+ ('.' [0-9]+)? ('MS' | 'S' | 'M' | 'H' | 'ms' | 's' | 'm' | 'h');
+
+byteSizeArg
+  : BYTE_SIZE
+  ;
+
+timeDurationArg
+  : TIME_DURATION
+  ;
+
 
 Identifier
  : [a-zA-Z_\-] [a-zA-Z_0-9\-]*
