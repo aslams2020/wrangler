@@ -19,9 +19,11 @@ package io.cdap.wrangler.parser;
 import io.cdap.wrangler.api.LazyNumber;
 import io.cdap.wrangler.api.RecipeSymbol;
 import io.cdap.wrangler.api.SourceInfo;
+import io.cdap.wrangler.api.TokenGroup;
 import io.cdap.wrangler.api.Triplet;
 import io.cdap.wrangler.api.parser.Bool;
 import io.cdap.wrangler.api.parser.BoolList;
+import io.cdap.wrangler.api.parser.ByteSize;
 import io.cdap.wrangler.api.parser.ColumnName;
 import io.cdap.wrangler.api.parser.ColumnNameList;
 import io.cdap.wrangler.api.parser.DirectiveName;
@@ -33,12 +35,13 @@ import io.cdap.wrangler.api.parser.Properties;
 import io.cdap.wrangler.api.parser.Ranges;
 import io.cdap.wrangler.api.parser.Text;
 import io.cdap.wrangler.api.parser.TextList;
+import io.cdap.wrangler.api.parser.TimeDuration;
 import io.cdap.wrangler.api.parser.Token;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
-
+import io.cdap.wrangler.parser.DirectiveParserVisitorImpl;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -200,12 +203,33 @@ public final class RecipeVisitor extends DirectivesBaseVisitor<RecipeSymbol.Buil
    * a single-quote or a double-quote. This visitor method extracts the string value
    * within the quotes and creates a token type <code>Text</code>.
    */
+  
+   @Override
+   public RecipeSymbol.Builder visitText(DirectivesParser.TextContext ctx) {
+     Token token = new DirectiveParserVisitorImpl().visitText(ctx);
+   
+     if (token != null) {
+       builder.addToken(token); // assuming builder.addToken(Token) exists
+     } else {
+       // Handle non-BYTE_SIZE or non-TIME_DURATION tokens (e.g., string/int)
+       // You can fallback to default parsing or log a warning
+     }
+   
+     return builder;
+   }
+   
+   // Add these methods explicitly
   @Override
-  public RecipeSymbol.Builder visitText(DirectivesParser.TextContext ctx) {
-    String value = ctx.String().getText();
-    builder.addToken(new Text(value.substring(1, value.length() - 1)));
-    return builder;
+  public RecipeSymbol.Builder visitByteSizeArg(DirectivesParser.ByteSizeArgContext ctx) {
+      builder.addToken(new ByteSize(ctx.BYTE_SIZE().getText())); // Convert "10KB" to ByteSize
+      return builder;
   }
+
+  @Override 
+  public RecipeSymbol.Builder visitTimeDurationArg(DirectivesParser.TimeDurationArgContext ctx) {
+      builder.addToken(new TimeDuration(ctx.TIME_DURATION().getText())); // Convert "100ms" to TimeDuration
+      return builder;
+  }                                                                                               
 
   /**
    * A Directive can consist of numeric field. This visitor method extracts the
@@ -326,4 +350,12 @@ public final class RecipeVisitor extends DirectivesBaseVisitor<RecipeSymbol.Buil
     int column = ctx.getStart().getCharPositionInLine();
     return new SourceInfo(lineno, column, text);
   }
+
+  public RecipeSymbol.Builder visitValue(DirectivesParser.ValueContext ctx) {
+    // Use your custom visitor to parse BYTE_SIZE and TIME_DURATION
+    Token token = new DirectiveParserVisitorImpl().visitValue(ctx);
+    builder.addToken(token);
+    return builder;
+  }
+
 }
