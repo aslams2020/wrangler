@@ -1,0 +1,11 @@
+1. Write a Java function to parse byte size strings like '2.5MB', '100KB', '1.2GB' into their equivalent number of bytes. Handle decimal values and units (B, KB, MB, GB, TB).
+
+2. Help me create a custom directive in CDAP Wrangler to aggregate byte and time values.
+
+3. Modify Directives.g4 to add a new directive rule for aggregate-stats.
+
+4. Write unit test for custom directive that sums ByteSize and TimeDuration.
+
+5. How to verify if changes in a multi-module Maven project are correctly built and tested?
+
+6. What are the best practices to make sure a successful build and test pass in a Java Maven project after modifying grammar and core directive logic?
