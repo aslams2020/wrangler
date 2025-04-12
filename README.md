@@ -22,7 +22,47 @@ are manually created.
 
 More [here](wrangler-docs/upcoming-features.md) on upcoming features.
 
-  * **User Defined Directives, also known as UDD**, allow you to create custom functions to transform records within CDAP DataPrep or a.k.a Wrangler. CDAP comes with a comprehensive library of functions. There are however some omissions, and some specific cases for which UDDs are the solution. Additional information on how you can build your custom directives [here](wrangler-docs/custom-directive.md).
+## New Parsers Introduced :
+  **1. ByteSize Parser -**
+  - Parses human-readable byte sizes like `10KB`, `1.5MB`, `3GB` into bytes.
+  - Supported units: **B, KB, MB, GB, TB**(case-insensitive)
+  - Supports both integer and decimal values (e.g., `1.5MB`, `200KB`)
+
+  > **Example Inputs:** `512B`, `2KB`, `1.5MB`, `3GB`
+
+  > **Parsed Output:** Corresponding values in bytes (e.g., `1572864` bytes for `1.5MB`)
+
+  **2. TimeDuration Parser -**
+  - Parses durations like `100ms`, `5s`, `3sec`, `2minutes` into milliseconds.  (case-insensitive)
+  - Supported units: **ms, s, sec, minutes**
+  - Supports both integer and decimal values (e.g., `2.5s`, `3min`)
+  > **Example Inputs :** `100ms`, `2s`, `1.5sec`, `3minutes`  
+
+  > **Parsed Output :** Corresponding values in milliseconds (e.g., `1500` ms for `1.5sec`)
+
+  ### New Directive
+  - Performs aggregation of total byte sizes and durations across rows.  
+  - It uses the new parsers internally to interpret and compute numerical values.
+
+  **Syntax :**
+  ```
+  aggregate-stats : <byteSizeColumn> <timeDurationColumn> <outputByteColumn> <outputTimeColumn>
+  ```
+  **Parameters :**
+  - `byteSizeColumn`: Input column containing human-readable byte sizes
+  - `timeDurationColumn`: Input column containing human-readable durations
+  - `outputByteColumn`: Output column to store the total bytes
+  - `outputTimeColumn`: Output column to store the total duration in milliseconds
+
+**Example Usage :**
+```
+aggregate-stats : file_size upload_time total_bytes total_duration
+```
+> This will parse and sum all values in `file_size` and `upload_time` columns, and write the final total to `total_bytes` and `total_duration` respectively.
+
+<br>
+
+* **User Defined Directives, also known as UDD**, allow you to create custom functions to transform records within CDAP DataPrep or a.k.a Wrangler. CDAP comes with a comprehensive library of functions. There are however some omissions, and some specific cases for which UDDs are the solution. Additional information on how you can build your custom directives [here](wrangler-docs/custom-directive.md).
     * Migrating directives from version 1.0 to version 2.0 [here](wrangler-docs/directive-migration.md)
     * Information about Grammar [here](wrangler-docs/grammar/grammar-info.md)
     * Various `TokenType` supported by system [here](../api/src/main/java/io/cdap/wrangler/api/parser/TokenType.java)
