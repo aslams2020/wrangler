@@ -79,6 +79,7 @@ public final class SystemDirectiveRegistry implements DirectiveRegistry {
    */
   public SystemDirectiveRegistry(List<String> namespaces) throws DirectiveLoadException {
     Map<String, DirectiveInfo> registry = new HashMap<>();
+    namespaces.add("io.cdap.directives.aggregates");
     namespaces.add(PACKAGE);
     for (String namespace : namespaces) {
       try {
